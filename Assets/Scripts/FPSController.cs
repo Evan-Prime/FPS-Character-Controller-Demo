@@ -48,7 +48,7 @@ public class FPSController : MonoBehaviour
     void Update()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        Debug.Log(isBlocked = Physics.CheckSphere(crouchCheck.position, blockedDistance, groundMask));
+        isBlocked = Physics.CheckSphere(crouchCheck.position, blockedDistance, groundMask);
 
         HandleMovement();
         HandleLook();
