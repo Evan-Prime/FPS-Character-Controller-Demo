@@ -8,8 +8,11 @@ public class FPSController : MonoBehaviour
     [SerializeField] private float walkSpeed = 3.0f;
     [SerializeField] private float currentSpeed;
     [SerializeField] private float runSpeed = 6.0f;
+    [SerializeField] private float crouchSpeed = 1.75f;
     [SerializeField] private float jumpVelocity = 5.0f;
     [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private Transform crouchCheck;
+    [SerializeField] private float blockedDistance = 0.5f;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundDistance = 0.4f;
     [SerializeField] private LayerMask groundMask;
@@ -20,12 +23,14 @@ public class FPSController : MonoBehaviour
 
     
     private bool isGrounded;
+    private bool isBlocked;
     private float verticalRotation;
     private Camera playerCamera;
     private Vector3 currentMovement = Vector3.zero;
     private Vector3 velocity;
     private CharacterController characterController;
-    
+    private Vector3 crouchScale = new Vector3(1f, 0.5f, 1f);
+    private Vector3 playerScale = new Vector3(1f, 1f, 1f);
 
 
     // Start is called before the first frame update
@@ -43,6 +48,7 @@ public class FPSController : MonoBehaviour
     void Update()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        Debug.Log(isBlocked = Physics.CheckSphere(crouchCheck.position, blockedDistance, groundMask));
 
         HandleMovement();
         HandleLook();
@@ -53,14 +59,30 @@ public class FPSController : MonoBehaviour
 
         playerMovement = transform.rotation * playerMovement;
 
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.C))
         {
-            currentSpeed = runSpeed;
+            currentSpeed = crouchSpeed;
+            transform.localScale = crouchScale;
+            transform.position = new Vector3(transform.position.x, crouchScale.y, transform.position.z);
         }
-        else
+        else if (Input.GetKeyUp(KeyCode.C) && isBlocked == false)
         {
             currentSpeed = walkSpeed;
+            transform.localScale = playerScale;
+            transform.position = new Vector3(transform.position.x, playerScale.y, transform.position.z);
         }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            Debug.Log("Running");
+            currentSpeed = runSpeed;
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            Debug.Log("Walking");
+            currentSpeed = walkSpeed;
+        }
+
 
         currentMovement.x = playerMovement.x * currentSpeed;
         currentMovement.z = playerMovement.z * currentSpeed;
