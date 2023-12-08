@@ -6,6 +6,8 @@ public class FPSController : MonoBehaviour
 {
     [Header("Movement Settting")]
     [SerializeField] private float walkSpeed = 3.0f;
+    [SerializeField] private float currentSpeed;
+    [SerializeField] private float runSpeed = 6.0f;
     [SerializeField] private float jumpVelocity = 5.0f;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private Transform groundCheck;
@@ -16,7 +18,7 @@ public class FPSController : MonoBehaviour
     [SerializeField] private float mouseSensitivity = 2.0f;
     [SerializeField] private float upDownLimit = 65f;
 
-
+    
     private bool isGrounded;
     private float verticalRotation;
     private Camera playerCamera;
@@ -32,6 +34,7 @@ public class FPSController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
+        currentSpeed = walkSpeed;
         characterController = GetComponent<CharacterController>();
         playerCamera = GetComponentInChildren<Camera>();
     }
@@ -50,14 +53,24 @@ public class FPSController : MonoBehaviour
 
         playerMovement = transform.rotation * playerMovement;
 
-        currentMovement.x = playerMovement.x * walkSpeed;
-        currentMovement.z = playerMovement.z * walkSpeed;
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            currentSpeed = runSpeed;
+        }
+        else
+        {
+            currentSpeed = walkSpeed;
+        }
+
+        currentMovement.x = playerMovement.x * currentSpeed;
+        currentMovement.z = playerMovement.z * currentSpeed;
 
         if (isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
         }
         
+
         // Check for jumps.
         if (isGrounded && Input.GetAxis("Jump") == 1)
         {
